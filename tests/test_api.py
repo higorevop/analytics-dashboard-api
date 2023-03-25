@@ -25,21 +25,22 @@ def test_upload_empty_csv():
     assert response.status_code == 400, f"Response: {response.text}"
     assert response.json() == {"detail": "Empty file. Please upload a non-empty CSV file."}
 
-def test_invalid_csv():
+def test_upload_invalid_csv():
     csv_data = "review_time,team,date,merge_time\n0,Application,2023-01-14,0\n0,Application,2023-01-15\n715,Application,2023-01-16,597"
     files = {"file": ("invalid.csv", csv_data, "text/csv")}
     response = client.post("/upload", files=files)
     assert response.status_code == 400, f"Response: {response.text}"
-    assert response.json() == {"detail": "Invalid CSV file. Please make sure all required fields are present in each row."}
+    assert response.json() == {"detail": "Invalid CSV file. Please make sure all required fields are non-null values."}
 
-def test_large_csv():
+
+def test_upload_large_csv():
     csv_data = "review_time,team,date,merge_time\n" + "0,Application,2023-01-14,0\n" * 1000000 + "0,Application,2023-01-15,0\n715,Application,2023-01-16,597"
     files = {"file": ("large.csv", csv_data, "text/csv")}
     response = client.post("/upload", files=files)
     assert response.status_code == 400, f"Response: {response.text}"
     assert response.json() == {"detail": "File too large. Please upload a smaller CSV file."}
 
-def test_non_csv_file():
+def test_upload_non_csv_file():
     csv_data = "review_time,team,date,merge_time\n0,Application,2023-01-14,0\n0,Application,2023-01-15,0\n715,Application,2023-01-16,597"
     files = {"file": ("sample.txt", csv_data, "text/plain")}
     response = client.post("/upload", files=files)
