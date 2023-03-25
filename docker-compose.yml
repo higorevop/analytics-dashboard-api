@@ -7,12 +7,14 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    environment:
+      - DATABASE_URL=postgresql://dev_username:dev_password@db/analitics
 
   db:
     image: "postgres:latest"
     environment:
-      POSTGRES_USER: "username"
-      POSTGRES_PASSWORD: "password"
-      POSTGRES_DB: "dbname"
+      POSTGRES_USER: "dev_username"
+      POSTGRES_PASSWORD: "dev_password"
+      POSTGRES_DB: "analitics"
     ports:
       - "5432:5432"
