@@ -7,6 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "main", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
-ENV DATABASE_URL="postgresql://dev_username:dev_password@db/analitics"
+ENV DATABASE_URL="postgresql://dev_username:dev_password@db/analytics"

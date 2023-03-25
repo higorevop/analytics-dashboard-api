@@ -9,8 +9,12 @@ from sqlalchemy.orm import Session
 
 from database import SessionLocal, engine
 from models import AnalyticsData, Base
+import logging
+
 
 Base.metadata.create_all(bind=engine)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 

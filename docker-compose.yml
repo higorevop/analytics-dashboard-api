@@ -8,13 +8,13 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://dev_username:dev_password@db/analitics
+      - DATABASE_URL=postgresql://dev_username:dev_password@db/analytics
 
   db:
-    image: "postgres:latest"
-    environment:
-      POSTGRES_USER: "dev_username"
-      POSTGRES_PASSWORD: "dev_password"
-      POSTGRES_DB: "analitics"
-    ports:
-      - "5432:5432"
+      image: "postgres:13"
+      environment:
+        POSTGRES_USER: "dev_username"
+        POSTGRES_PASSWORD: "dev_password"
+        POSTGRES_DB: "analytics"
+      ports:
+        - "5432:5432"

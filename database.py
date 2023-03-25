@@ -6,7 +6,7 @@ from models import AnalyticsData, Base
 
 load_dotenv()
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://dev_username:dev_password@localhost/analitics")
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://dev_username:dev_password@localhost/analytics")
 
 engine = create_engine(DATABASE_URL)
 Base = declarative_base() 
