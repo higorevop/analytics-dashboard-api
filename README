@@ -1,0 +1,3 @@
+# Analytics Dashboard API
+
+This project is a RESTful API server for an analytics dashboard. The dashboard allows users to authenticate, upload data in CSV format, view summary statistics, create visualizations, save visualizations for future reference, and share visualizations with others.
