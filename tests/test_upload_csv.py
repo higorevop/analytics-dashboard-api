@@ -1,12 +1,13 @@
-import pytest
-
-
 def test_upload_csv(client, error_messages):
     csv_data = "review_time,team,date,merge_time\n0,Application,2023-01-14,0\n0,Application,2023-01-15,0\n715,Application,2023-01-16,597"
     files = {"file": ("sample.csv", csv_data, "text/csv")}
     response = client.post("/upload_csv", files=files)
     assert response.status_code == 201, f"Response: {response.text}"
-    assert response.json() == {"detail": error_messages["upload_successful"]}
+    response_json = response.json()
+    assert response_json["detail"] == error_messages["upload_successful"]
+    assert "group_id" in response_json
+    assert isinstance(response_json["group_id"], int)
+
 
 
 def test_upload_empty_csv(client, error_messages):
@@ -54,7 +55,10 @@ def test_upload_csv_with_additional_fields(client, error_messages):
     files = {"file": ("additional_fields.csv", csv_data, "text/csv")}
     response = client.post("/upload_csv", files=files)
     assert response.status_code == 201, f"Response: {response.text}"
-    assert response.json() == {"detail": error_messages["upload_successful"]}
+    response_json = response.json()
+    assert response_json["detail"] == error_messages["upload_successful"]
+    assert "group_id" in response_json
+    assert isinstance(response_json["group_id"], int)
 
 
 def test_upload_csv_with_missing_fields(client, error_messages):

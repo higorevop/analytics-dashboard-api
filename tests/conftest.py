@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 @pytest.fixture(scope='session', autouse=True)
 def init_db():
-    from database import create_tables, drop_tables
+    from db.database import create_tables, drop_tables
     create_tables()
     yield
     drop_tables()
@@ -19,5 +19,5 @@ def client():
 
 @pytest.fixture(scope="module")
 def error_messages():
-    from app.utils.csv_utils import ERROR_MESSAGES
+    from app.utils.csv import ERROR_MESSAGES
     return ERROR_MESSAGES

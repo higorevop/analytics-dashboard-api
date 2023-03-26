@@ -2,8 +2,8 @@ from fastapi import APIRouter, File, UploadFile, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from db.database import engine
-from utils.db_utils import get_db
-from utils.csv_utils import (
+from utils.db import get_db
+from utils.csv import (
     read_file_content,
     validate_and_parse_csv,
     ERROR_MESSAGES)
@@ -47,7 +47,7 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
     try:
         db.add_all(data)
         db.commit()
-        return {"detail": ERROR_MESSAGES["upload_successful"]}
+        return {"detail": ERROR_MESSAGES["upload_successful"], "group_id": analytics_data_group.id}
     except Exception as e:
         db.rollback()
         return JSONResponse(
