@@ -2,6 +2,9 @@ from typing import List
 from db.models import AnalyticsData, AnalyticsDataGroup
 from sqlalchemy.orm import Session
 import pandas as pd
+from db.models import AnalyticsData, AnalyticsDataGroup, AnalyticsVisualization
+from utils.visualizations import create_line_chart, create_bar_chart, create_scatter_plot, create_pie_chart
+from fastapi import HTTPException
 
 def calculate_and_store_summary(db: Session, group: AnalyticsDataGroup, data: List[AnalyticsData]):
     df = pd.DataFrame([{
@@ -19,4 +22,3 @@ def calculate_and_store_summary(db: Session, group: AnalyticsDataGroup, data: Li
 
     db.add(group)
     db.commit()
-

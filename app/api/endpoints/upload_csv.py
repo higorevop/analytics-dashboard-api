@@ -8,16 +8,22 @@ from utils.csv import (
     validate_and_parse_csv,
     ERROR_MESSAGES)
 from db.database import Base
-from db.models import AnalyticsDataGroup, AnalyticsData
+from db.models import AnalyticsDataGroup
 from datetime import datetime
-from utils.analytics import calculate_and_store_summary
+from utils.analytics_db import calculate_and_store_summary
 
 Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-@router.post("/upload_csv", status_code=201)
-async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
+@router.post( "/upload_csv", status_code=201)
+async def upload_csv(file: UploadFile = File(..., description="The CSV file to upload (multipart/form-data)"), db: Session = Depends(get_db)):
+    """
+    Upload CSV
+
+    Upload a CSV file containing columns review_time, team, date, and merge_time.
+
+    """
     if file.content_type != "text/csv":
         return JSONResponse(
             status_code=400,
