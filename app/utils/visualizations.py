@@ -2,10 +2,12 @@ import plotly.graph_objs as go
 import plotly.io as pio
 import json
 from db.models import AnalyticsData
-from typing import List
+from typing import List, Union
+
 import pandas as pd
 
-def create_line_chart(data: List[AnalyticsData], title: str):
+
+def create_line_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
     df = pd.DataFrame([item.__dict__ for item in data])
     fig = go.Figure()
 
@@ -19,7 +21,8 @@ def create_line_chart(data: List[AnalyticsData], title: str):
     fig.update_layout(title=title, xaxis_title='Date', yaxis_title='Time')
     return json.loads(pio.to_json(fig))
 
-def create_pie_chart(data: List[AnalyticsData], title: str):
+
+def create_pie_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
     df = pd.DataFrame([item.__dict__ for item in data])
     team_counts = df['team'].value_counts()
     
@@ -31,7 +34,7 @@ def create_pie_chart(data: List[AnalyticsData], title: str):
     return json.loads(pio.to_json(fig))
 
 
-def create_bar_chart(data: List[AnalyticsData], title: str):
+def create_bar_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
     df = pd.DataFrame([item.__dict__ for item in data])
     fig = go.Figure()
 
@@ -46,7 +49,7 @@ def create_bar_chart(data: List[AnalyticsData], title: str):
     return json.loads(pio.to_json(fig))
 
 
-def create_scatter_plot(data: List[AnalyticsData], title: str):
+def create_scatter_plot(data: List[AnalyticsData], title: str) -> Union[dict, str]:
     df = pd.DataFrame([item.__dict__ for item in data])
     fig = go.Figure()
 

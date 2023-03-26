@@ -7,8 +7,8 @@ from db.models import AnalyticsData
 from fastapi import UploadFile
 
 
-MAX_FILE_SIZE = 1024 * 1024 * 10  # 10 MB
-REQUIRED_FIELDS = ["review_time", "team", "date", "merge_time"]
+MAX_FILE_SIZE: int = 1024 * 1024 * 10  # 10 MB
+REQUIRED_FIELDS: List[str] = ["review_time", "team", "date", "merge_time"]
 ERROR_MESSAGES: Dict[str, str] = {
     "invalid_csv": "Invalid CSV file. Please make sure all required fields are present in each row.",
     "invalid_date_format": "Invalid date format. Please make sure all date values are in the format YYYY-MM-DD.",
@@ -19,11 +19,12 @@ ERROR_MESSAGES: Dict[str, str] = {
     "processing_error": "Error occurred while processing the CSV file: {error}",
 }
 
+
 async def read_file_content(file: UploadFile) -> Union[bytes, None]:
-    file_size = 0
-    file_content = b""
+    file_size: int = 0
+    file_content: bytes = b""
     while True:
-        chunk = await file.read(10000)
+        chunk: bytes = await file.read(10000)
         if not chunk:
             break
         file_size += len(chunk)
@@ -40,9 +41,10 @@ def is_valid_date(date_str: str) -> bool:
     except ValueError:
         return False
 
+
 def validate_and_parse_csv(file_content: bytes, group_id: int) -> Union[List[AnalyticsData], JSONResponse]:
-    csv_file = io.StringIO(file_content.decode("utf-8"))
-    df = pd.read_csv(csv_file)
+    csv_file: io.StringIO = io.StringIO(file_content.decode("utf-8"))
+    df: pd.DataFrame = pd.read_csv(csv_file)
 
     if not all(field in df.columns for field in REQUIRED_FIELDS):
         return JSONResponse(
@@ -72,5 +74,5 @@ def validate_and_parse_csv(file_content: bytes, group_id: int) -> Union[List[Ana
             content={"detail": ERROR_MESSAGES["invalid_csv"]},
         )
 
-    data = [AnalyticsData(group_id=group_id, **row) for _, row in df.iterrows()]
+    data: List[AnalyticsData] = [AnalyticsData(group_id=group_id, **row) for _, row in df.iterrows()]
     return data

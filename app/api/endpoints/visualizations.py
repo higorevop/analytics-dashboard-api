@@ -1,26 +1,26 @@
-
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Path
 from sqlalchemy.orm import Session
-from db.database import engine
-from db.database import get_db
+
+from db.database import engine, get_db
 from db.database import Base
 from db.models import AnalyticsDataGroup
-Base.metadata.create_all(bind=engine)
 from utils.visualizations_db import get_or_create_visualization
+
+Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Path
-# ... (restante das importações)
 
 @router.get("/{group_id}/visualizations/{chart_type}")
 def get_visualization(
-        group_id: int,
-        request: Request,
-        db: Session = Depends(get_db),
-        chart_type: str = Path(..., description="Type of chart to retrieve (line_chart, bar_chart, scatter_plot or pie_chart)"),
-
-):
+    group_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    chart_type: str = Path(
+        ...,
+        description="Type of chart to retrieve (line_chart, bar_chart, scatter_plot or pie_chart)",
+    ),
+) -> dict:
     """
     Get Visualization
 
