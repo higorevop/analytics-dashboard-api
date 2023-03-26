@@ -1,37 +1,26 @@
 import io
 import datetime
 from typing import List, Union, Dict
-
-import pandas as pd
 from fastapi import FastAPI, File, UploadFile, Depends
-from fastapi.responses import JSONResponse
+import pandas as pd
 from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
 
-from database import SessionLocal, engine
-from models import AnalyticsData, Base
-import logging
+from db.database import SessionLocal
+from api.schemas.analytics_data import AnalyticsData
 
-
-Base.metadata.create_all(bind=engine)
-
-logger = logging.getLogger(__name__)
-
-app = FastAPI()
 
 MAX_FILE_SIZE = 1024 * 1024 * 10  # 10 MB
 REQUIRED_FIELDS = ["review_time", "team", "date", "merge_time"]
 ERROR_MESSAGES: Dict[str, str] = {
     "invalid_csv": "Invalid CSV file. Please make sure all required fields are present in each row.",
     "invalid_date_format": "Invalid date format. Please make sure all date values are in the format YYYY-MM-DD.",
-    "invalid_null_values": "Invalid CSV file. Please make sure all required fields are non-null values.",
-    "invalid_integers": "Invalid CSV file. Please make sure all required fields are valid non-negative integers and non-null values.",
     "invalid_file_format": "Invalid file format. Please upload a CSV file.",
     "file_too_large": "File too large. Please upload a smaller CSV file.",
     "empty_file": "Empty file. Please upload a non-empty CSV file.",
     "upload_successful": "Data uploaded successfully",
     "processing_error": "Error occurred while processing the CSV file: {error}",
 }
-
 
 def get_db() -> Session:
     db = SessionLocal()
@@ -84,7 +73,7 @@ def validate_and_parse_csv(file_content: bytes) -> Union[List[AnalyticsData], JS
     if df.isnull().values.any():
         return JSONResponse(
             status_code=400,
-            content={"detail": ERROR_MESSAGES["invalid_null_values"]},
+            content={"detail": ERROR_MESSAGES["invalid_csv"]},
         )
 
     df = df.astype({"review_time": "int32", "merge_time": "int32"})
@@ -92,45 +81,8 @@ def validate_and_parse_csv(file_content: bytes) -> Union[List[AnalyticsData], JS
     if not df.apply(lambda x: x.review_time >= 0 and x.merge_time >= 0, axis=1).all():
         return JSONResponse(
             status_code=400,
-            content={"detail": ERROR_MESSAGES["invalid_integers"]},
+            content={"detail": ERROR_MESSAGES["invalid_csv"]},
         )
 
     data = [AnalyticsData(**row) for _, row in df.iterrows()]
     return data
-
-
-@app.post("/upload", status_code=201)
-async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    if file.content_type != "text/csv":
-        return JSONResponse(
-            status_code=400,
-            content={"detail": ERROR_MESSAGES["invalid_file_format"]},
-        )
-
-    file_content = await read_file_content(file)
-    if file_content is None:
-        return JSONResponse(
-            status_code=400,
-            content={"detail": ERROR_MESSAGES["file_too_large"]},
-        )
-
-    if len(file_content) == 0:
-        return JSONResponse(
-            status_code=400,
-            content={"detail": ERROR_MESSAGES["empty_file"]},
-        )
-
-    data = validate_and_parse_csv(file_content)
-    if isinstance(data, JSONResponse):
-        return data
-
-    try:
-        db.add_all(data)
-        db.commit()
-        return {"detail": ERROR_MESSAGES["upload_successful"]}
-    except Exception as e:
-        db.rollback()
-    return JSONResponse(
-        status_code=500,
-        content={"detail": ERROR_MESSAGES["processing_error"].format(error=e)},
-    )
