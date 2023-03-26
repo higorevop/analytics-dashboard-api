@@ -1,13 +1,10 @@
 import io
 import datetime
 from typing import List, Union, Dict
-from fastapi import FastAPI, File, UploadFile, Depends
 import pandas as pd
-from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
-
-from db.database import SessionLocal
-from api.schemas.analytics_data import AnalyticsData
+from db.models import AnalyticsData
+from fastapi import UploadFile
 
 
 MAX_FILE_SIZE = 1024 * 1024 * 10  # 10 MB
@@ -21,14 +18,6 @@ ERROR_MESSAGES: Dict[str, str] = {
     "upload_successful": "Data uploaded successfully",
     "processing_error": "Error occurred while processing the CSV file: {error}",
 }
-
-def get_db() -> Session:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 async def read_file_content(file: UploadFile) -> Union[bytes, None]:
     file_size = 0
@@ -51,8 +40,7 @@ def is_valid_date(date_str: str) -> bool:
     except ValueError:
         return False
 
-
-def validate_and_parse_csv(file_content: bytes) -> Union[List[AnalyticsData], JSONResponse]:
+def validate_and_parse_csv(file_content: bytes, group_id: int) -> Union[List[AnalyticsData], JSONResponse]:
     csv_file = io.StringIO(file_content.decode("utf-8"))
     df = pd.read_csv(csv_file)
 
@@ -84,5 +72,5 @@ def validate_and_parse_csv(file_content: bytes) -> Union[List[AnalyticsData], JS
             content={"detail": ERROR_MESSAGES["invalid_csv"]},
         )
 
-    data = [AnalyticsData(**row) for _, row in df.iterrows()]
+    data = [AnalyticsData(group_id=group_id, **row) for _, row in df.iterrows()]
     return data

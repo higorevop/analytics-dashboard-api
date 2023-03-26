@@ -2,12 +2,14 @@ from fastapi import APIRouter, File, UploadFile, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from db.database import engine
-from utils import (
-    get_db,
+from utils.db_utils import get_db
+from utils.csv_utils import (
     read_file_content,
     validate_and_parse_csv,
     ERROR_MESSAGES)
-from models import Base
+from db.database import Base
+from db.models import AnalyticsDataGroup, AnalyticsData
+from datetime import datetime
 
 Base.metadata.create_all(bind=engine)
 
@@ -34,7 +36,11 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
             content={"detail": ERROR_MESSAGES["empty_file"]},
         )
 
-    data = validate_and_parse_csv(file_content)
+    analytics_data_group = AnalyticsDataGroup(created_at=datetime.utcnow())
+    db.add(analytics_data_group)
+    db.commit()
+
+    data = validate_and_parse_csv(file_content, analytics_data_group.id)
     if isinstance(data, JSONResponse):
         return data
 
