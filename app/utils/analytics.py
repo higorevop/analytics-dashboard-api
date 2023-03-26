@@ -1,31 +1,22 @@
-import pandas as pd
-from db.models import AnalyticsData
 from typing import List
+from db.models import AnalyticsData, AnalyticsDataGroup
+from sqlalchemy.orm import Session
+import pandas as pd
 
-def get_summary_statistics(data: List[AnalyticsData]) -> pd.DataFrame:
-    df = pd.DataFrame([item.__dict__ for item in data])
+def calculate_and_store_summary(db: Session, group: AnalyticsDataGroup, data: List[AnalyticsData]):
+    df = pd.DataFrame([{
+        'review_time': item.review_time,
+        'merge_time': item.merge_time
+    } for item in data])
 
-    mean_review_time = df["review_time"].mean()
-    median_review_time = df["review_time"].median()
-    mode_review_time = df["review_time"].mode()[0]
+    group.mean_review_time = df["review_time"].mean().item()
+    group.median_review_time = df["review_time"].median().item()
+    group.mode_review_time = df["review_time"].mode()[0].item()
 
-    mean_merge_time = df["merge_time"].mean()
-    median_merge_time = df["merge_time"].median()
-    mode_merge_time = df["merge_time"].mode()[0]
+    group.mean_merge_time = df["merge_time"].mean().item()
+    group.median_merge_time = df["merge_time"].median().item()
+    group.mode_merge_time = df["merge_time"].mode()[0].item()
 
-    statistics = pd.DataFrame(
-        {
-            "review_time": {
-                "mean": mean_review_time,
-                "median": median_review_time,
-                "mode": mode_review_time,
-            },
-            "merge_time": {
-                "mean": mean_merge_time,
-                "median": median_merge_time,
-                "mode": mode_merge_time,
-            },
-        }
-    )
+    db.add(group)
+    db.commit()
 
-    return statistics

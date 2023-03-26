@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Float
 from db.database import Base
 
 class AnalyticsDataGroup(Base):
@@ -6,9 +6,17 @@ class AnalyticsDataGroup(Base):
     __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(Date)
+    mean_review_time = Column(Float)
+    median_review_time = Column(Float)
+    mode_review_time = Column(Float)
+    mean_merge_time = Column(Float)
+    median_merge_time = Column(Float)
+    mode_merge_time = Column(Float)
 
     class Config:
         orm_mode = True
+
+
 
 class AnalyticsData(Base):
     __tablename__ = "analytics_data"
