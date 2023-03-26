@@ -1,14 +1,16 @@
 from fastapi import FastAPI
-from api.endpoints import upload_csv
+from api.endpoints import upload_csv, analytics
 from db.database import create_tables
 
 app = FastAPI()
 
-create_tables()
+@app.on_event("startup")
+async def startup():
+    create_tables()
 
 app.include_router(upload_csv.router)
+app.include_router(analytics.router)
 
-# Rota de status da API
 @app.get("/status")
 def status():
     return {"status": "ok"}

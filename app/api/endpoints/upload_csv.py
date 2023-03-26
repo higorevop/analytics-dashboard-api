@@ -2,7 +2,7 @@ from fastapi import APIRouter, File, UploadFile, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from db.database import engine
-from utils.db import get_db
+from db.database import get_db
 from utils.csv import (
     read_file_content,
     validate_and_parse_csv,

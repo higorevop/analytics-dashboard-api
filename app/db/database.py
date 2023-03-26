@@ -13,8 +13,12 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://dev_username:dev_pas
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def init_db():
-    return SessionLocal()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 def create_tables():
     Base.metadata.create_all(checkfirst=True, bind=engine)
