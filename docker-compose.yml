@@ -8,7 +8,8 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://dev_username:dev_password@db/analytics
+      - DATABASE_URL=postgresql+asyncpg://dev_username:dev_password@db/analytics
+
 
   db:
       image: "postgres:13"

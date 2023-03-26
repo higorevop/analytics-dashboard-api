@@ -1,21 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Path
 from sqlalchemy.orm import Session
 
-from db.database import engine, get_db
-from db.database import Base
+from db.database import get_db
 from db.models import AnalyticsDataGroup
 from utils.visualizations_db import get_or_create_visualization
-
-Base.metadata.create_all(bind=engine)
+from databases import Database  
 
 router = APIRouter()
 
 
 @router.get("/{group_id}/visualizations/{chart_type}")
-def get_visualization(
+async def get_visualization(
     group_id: int,
     request: Request,
-    db: Session = Depends(get_db),
+    db: Database = Depends(get_db),
     chart_type: str = Path(
         ...,
         description="Type of chart to retrieve (line_chart, bar_chart, scatter_plot or pie_chart)",
@@ -34,7 +32,7 @@ def get_visualization(
 
     The visualization will be created if it does not exist, and a shareable URL will be provided.
     """
-    group = db.get(AnalyticsDataGroup, group_id)
+    group = await db.get(AnalyticsDataGroup, group_id)
 
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")

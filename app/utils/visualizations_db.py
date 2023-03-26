@@ -1,3 +1,4 @@
+from databases import Database 
 from typing import Union, Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
@@ -8,25 +9,30 @@ from utils.visualizations import (
     create_scatter_plot,
     create_pie_chart,
 )
+from sqlalchemy import select
 
-def get_or_create_visualization(
-    db: Session, group: AnalyticsDataGroup, chart_type: str
+async def get_or_create_visualization(
+    db: Database, group: AnalyticsDataGroup, chart_type: str
 ) -> AnalyticsVisualization:
-    visualization: Optional[AnalyticsVisualization] = (
-        db.query(AnalyticsVisualization)
-        .filter(AnalyticsVisualization.group_id == group.id, AnalyticsVisualization.chart_type == chart_type)
-        .first()
+    query = (
+        select(AnalyticsVisualization)
+        .where(
+            (AnalyticsVisualization.group_id == group.id)
+            & (AnalyticsVisualization.chart_type == chart_type)
+        )
     )
+    visualization = await db.fetch_one(query)
 
     if visualization:
         return visualization
 
-    return generate_and_save_chart(db, group, chart_type)
+    return await generate_and_save_chart(db, group, chart_type)
 
-def generate_and_save_chart(
-    db: Session, group: AnalyticsDataGroup, chart_type: str
+async def generate_and_save_chart(
+    db: Database, group: AnalyticsDataGroup, chart_type: str
 ) -> AnalyticsVisualization:
-    data: list[AnalyticsData] = db.query(AnalyticsData).filter(AnalyticsData.group_id == group.id).all()
+    query = select(AnalyticsData).where(AnalyticsData.group_id == group.id)
+    data = await db.fetch_all(query)
 
     if chart_type == "line_chart":
         chart_data: dict[str, Union[str, list[dict[str, Union[int, float]]]]] = create_line_chart(data, f"Line Chart for Group {group.id}")
@@ -39,7 +45,7 @@ def generate_and_save_chart(
     else:
         raise HTTPException(status_code=400, detail="Invalid chart type")
 
-    visualization: AnalyticsVisualization = AnalyticsVisualization(group_id=group.id, chart_type=chart_type, chart_data=chart_data)
-    db.add(visualization)
-    db.commit()
+    visualization = AnalyticsVisualization(group_id=group.id, chart_type=chart_type, chart_data=chart_data)
+    query = AnalyticsVisualization.__table__.insert().values(**visualization.dict())
+    await db.execute(query)
     return visualization

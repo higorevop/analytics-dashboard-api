@@ -11,4 +11,4 @@ COPY wait-for-it.sh .
 CMD ["./wait-for-it.sh", "db:5432", "--", "uvicorn", "main:app", "--host", "0.0.0.0", "--reload", "--port", "8000"]
 
 ENV PYTHONPATH="/app"
-ENV DATABASE_URL="postgresql://dev_username:dev_password@db/analytics"
+ENV DATABASE_URL="postgresql+asyncpg://dev_username:dev_password@db/analytics"

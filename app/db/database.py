@@ -1,29 +1,30 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
+from typing import AsyncGenerator
+from databases import Database
+from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine
 
-from typing import Generator
 
 Base = declarative_base()
 
 load_dotenv()
 
-DATABASE_URL: str = os.environ.get("DATABASE_URL", "postgresql://dev_username:dev_password@localhost/analytics")
+DATABASE_URL: str = os.environ.get("DATABASE_URL", "postgresql+asyncpg://dev_username:dev_password@localhost/analytics")
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_async_engine(DATABASE_URL)
 
-def get_db() -> Generator:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+database = Database(DATABASE_URL)
 
-def create_tables() -> None:
-    Base.metadata.create_all(checkfirst=True, bind=engine)
+async def get_db() -> AsyncGenerator:
+    async with database.transaction():
+        yield database
 
-def drop_tables() -> None:
-    Base.metadata.drop_all(bind=engine)
+async def drop_tables() -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+async def create_tables() -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
