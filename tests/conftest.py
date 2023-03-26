@@ -19,5 +19,5 @@ def client():
 
 @pytest.fixture(scope="module")
 def error_messages():
-    from app.utils import ERROR_MESSAGES
+    from app.utils.csv_utils import ERROR_MESSAGES
     return ERROR_MESSAGES
