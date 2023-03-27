@@ -53,29 +53,30 @@ Technology Choices
 
 Example of reading a Plotly figure from the API:
 
-    import requests
-    import plotly.graph_objs as go
-    import plotly.io as pio
-    import json
+```python
+import requests
+import plotly.graph_objs as go
+import plotly.io as pio
+import json
 
-    url = "http://localhost:8000/497/visualizations/pie_chart"
+url = "http://localhost:8000/497/visualizations/pie_chart"
 
-    response = requests.get(url)
+response = requests.get(url)
 
-    if response.status_code == 200:
-        json_data = response.json()
-        chart_data = json.loads(response.json()["chart_data"])
-        data = chart_data['data']
-        layout = chart_data['layout']
-            
-        fig = go.Figure(data=data, layout=layout)
+if response.status_code == 200:
+    json_data = response.json()
+    chart_data = json.loads(response.json()["chart_data"])
+    data = chart_data['data']
+    layout = chart_data['layout']
+        
+    fig = go.Figure(data=data, layout=layout)
 
-        # Save the figure as a PNG image
-        pio.write_image(fig, "pie_chart.png", format="png")
-        print("Image saved as pie_chart.png")
-    else:
-        print(f"Error: {response.status_code}, {response.text}")
-
+    # Save the figure as a PNG image
+    pio.write_image(fig, "pie_chart.png", format="png")
+    print("Image saved as pie_chart.png")
+else:
+    print(f"Error: {response.status_code}, {response.text}")
+```
 
 ![ pie chart example](pie_chart.png "Pie chart example") 
 
