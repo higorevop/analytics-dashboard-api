@@ -78,6 +78,8 @@ else:
     print(f"Error: {response.status_code}, {response.text}")
 ```
 
+
+
 ![ pie chart example](pie_chart.png "Pie chart example") 
 
 Improvements and Scaling
