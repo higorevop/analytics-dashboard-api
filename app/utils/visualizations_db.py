@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from db.models import AnalyticsData, AnalyticsDataGroup, AnalyticsVisualization
 from utils.visualizations import (
-    create_line_chart,
     create_bar_chart,
     create_scatter_plot,
     create_pie_chart,
@@ -34,9 +33,7 @@ async def generate_and_save_chart(
     query = select(AnalyticsData).where(AnalyticsData.group_id == group.id)
     data = await db.fetch_all(query)
 
-    if chart_type == "line_chart":
-        chart_data: dict[str, Union[str, list[dict[str, Union[int, float]]]]] = create_line_chart(data, f"Line Chart for Group {group.id}")
-    elif chart_type == "bar_chart":
+    if chart_type == "bar_chart":
         chart_data: dict[str, Union[str, list[dict[str, Union[int, float]]]]] = create_bar_chart(data, f"Bar Chart for Group {group.id}")
     elif chart_type == "scatter_plot":
         chart_data: dict[str, Union[str, list[dict[str, Union[int, float]]]]] = create_scatter_plot(data, f"Scatter Plot for Group {group.id}")
@@ -45,7 +42,13 @@ async def generate_and_save_chart(
     else:
         raise HTTPException(status_code=400, detail="Invalid chart type")
 
-    visualization = AnalyticsVisualization(group_id=group.id, chart_type=chart_type, chart_data=chart_data)
-    query = AnalyticsVisualization.__table__.insert().values(**visualization.dict())
+    visualization_data = {
+        'group_id': group.id,
+        'chart_type': chart_type,
+        'chart_data': chart_data
+    }
+    
+    visualization = AnalyticsVisualization(**visualization_data)
+    query = AnalyticsVisualization.__table__.insert().values(**visualization_data)
     await db.execute(query)
     return visualization

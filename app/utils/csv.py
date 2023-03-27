@@ -5,6 +5,7 @@ import pandas as pd
 from fastapi.responses import JSONResponse
 from db.models import AnalyticsData
 from fastapi import UploadFile
+from datetime import date
 
 
 MAX_FILE_SIZE: int = 1024 * 1024 * 10  # 10 MB
@@ -76,3 +77,12 @@ def validate_and_parse_csv(file_content: bytes, group_id: int) -> Union[List[Ana
 
     data: List[AnalyticsData] = [AnalyticsData(group_id=group_id, **row) for _, row in df.iterrows()]
     return data
+
+def analytics_data_to_dict(analytics_data: AnalyticsData) -> dict:
+    return {
+        "review_time": analytics_data.review_time,
+        "team": analytics_data.team,
+        "date": date.fromisoformat(analytics_data.date) if isinstance(analytics_data.date, str) else analytics_data.date,
+        "merge_time": analytics_data.merge_time,
+        "group_id": analytics_data.group_id
+    }

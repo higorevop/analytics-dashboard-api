@@ -3,27 +3,12 @@ import plotly.io as pio
 import json
 from db.models import AnalyticsData
 from typing import List, Union
-
 import pandas as pd
 
 
-def create_line_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
-    df = pd.DataFrame([item.__dict__ for item in data])
-    fig = go.Figure()
-
-    fig.add_trace(
-        go.Scatter(x=df['date'], y=df['review_time'], mode='lines+markers', name='Review Time')
-    )
-    fig.add_trace(
-        go.Scatter(x=df['date'], y=df['merge_time'], mode='lines+markers', name='Merge Time')
-    )
-
-    fig.update_layout(title=title, xaxis_title='Date', yaxis_title='Time')
-    return json.loads(pio.to_json(fig))
-
 
 def create_pie_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
-    df = pd.DataFrame([item.__dict__ for item in data])
+    df = pd.DataFrame([analytics_data_to_dict(item) for item in data])
     team_counts = df['team'].value_counts()
     
     fig = go.Figure(
@@ -35,12 +20,9 @@ def create_pie_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
 
 
 def create_bar_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
-    df = pd.DataFrame([item.__dict__ for item in data])
+    df = pd.DataFrame([analytics_data_to_dict(item) for item in data])
     fig = go.Figure()
 
-    fig.add_trace(
-        go.Bar(x=df['date'], y=df['review_time'], name='Review Time')
-    )
     fig.add_trace(
         go.Bar(x=df['date'], y=df['merge_time'], name='Merge Time')
     )
@@ -50,7 +32,7 @@ def create_bar_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
 
 
 def create_scatter_plot(data: List[AnalyticsData], title: str) -> Union[dict, str]:
-    df = pd.DataFrame([item.__dict__ for item in data])
+    df = pd.DataFrame([analytics_data_to_dict(item) for item in data])
     fig = go.Figure()
 
     fig.add_trace(
@@ -59,3 +41,13 @@ def create_scatter_plot(data: List[AnalyticsData], title: str) -> Union[dict, st
 
     fig.update_layout(title=title, xaxis_title='Review Time', yaxis_title='Merge Time')
     return json.loads(pio.to_json(fig))
+
+def analytics_data_to_dict(data: AnalyticsData) -> dict:
+    return {
+        "id": data.id,
+        "review_time": data.review_time,
+        "team": data.team,
+        "date": data.date,
+        "merge_time": data.merge_time,
+        "group_id": data.group_id,
+    }
