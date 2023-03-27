@@ -8,6 +8,7 @@ from db.models import AnalyticsDataGroup
 
 router: APIRouter = APIRouter()
 
+
 @router.get("/{group_id}/summary")
 async def get_group_summary(
     group_id: int,

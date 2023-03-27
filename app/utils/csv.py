@@ -75,8 +75,10 @@ def validate_and_parse_csv(file_content: bytes, group_id: int) -> Union[List[Ana
             content={"detail": ERROR_MESSAGES["invalid_csv"]},
         )
 
-    data: List[AnalyticsData] = [AnalyticsData(group_id=group_id, **row) for _, row in df.iterrows()]
+    data: List[AnalyticsData] = [AnalyticsData(
+        group_id=group_id, **row) for _, row in df.iterrows()]
     return data
+
 
 def analytics_data_to_dict(analytics_data: AnalyticsData) -> dict:
     return {

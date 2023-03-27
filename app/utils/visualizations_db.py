@@ -1,6 +1,5 @@
-from databases import Database 
-from typing import Union, Optional
-from sqlalchemy.orm import Session
+from databases import Database
+from typing import Union
 from fastapi import HTTPException
 from db.models import AnalyticsData, AnalyticsDataGroup, AnalyticsVisualization
 from utils.visualizations import (
@@ -9,6 +8,7 @@ from utils.visualizations import (
     create_pie_chart,
 )
 from sqlalchemy import select
+
 
 async def get_or_create_visualization(
     db: Database, group: AnalyticsDataGroup, chart_type: str
@@ -27,6 +27,7 @@ async def get_or_create_visualization(
 
     return await generate_and_save_chart(db, group, chart_type)
 
+
 async def generate_and_save_chart(
     db: Database, group: AnalyticsDataGroup, chart_type: str
 ) -> AnalyticsVisualization:
@@ -34,11 +35,14 @@ async def generate_and_save_chart(
     data = await db.fetch_all(query)
 
     if chart_type == "bar_chart":
-        chart_data: dict[str, Union[str, list[dict[str, Union[int, float]]]]] = create_bar_chart(data, f"Bar Chart for Group {group.id}")
+        chart_data: dict[str, Union[str, list[dict[str, Union[int, float]]]]
+                         ] = create_bar_chart(data, f"Bar Chart for Group {group.id}")
     elif chart_type == "scatter_plot":
-        chart_data: dict[str, Union[str, list[dict[str, Union[int, float]]]]] = create_scatter_plot(data, f"Scatter Plot for Group {group.id}")
+        chart_data: dict[str, Union[str, list[dict[str, Union[int, float]]]]
+                         ] = create_scatter_plot(data, f"Scatter Plot for Group {group.id}")
     elif chart_type == "pie_chart":
-        chart_data: dict[str, Union[str, list[dict[str, Union[str, Union[int, float]]]]]] = create_pie_chart(data, f"Pie Chart for Group {group.id}")
+        chart_data: dict[str, Union[str, list[dict[str, Union[str, Union[int, float]]]]]
+                         ] = create_pie_chart(data, f"Pie Chart for Group {group.id}")
     else:
         raise HTTPException(status_code=400, detail="Invalid chart type")
 
@@ -47,7 +51,7 @@ async def generate_and_save_chart(
         'chart_type': chart_type,
         'chart_data': chart_data
     }
-    
+
     visualization = AnalyticsVisualization(**visualization_data)
     query = AnalyticsVisualization.__table__.insert().values(**visualization_data)
     await db.execute(query)

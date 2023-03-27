@@ -6,13 +6,13 @@ from typing import List, Union
 import pandas as pd
 
 
-
 def create_pie_chart(data: List[AnalyticsData], title: str) -> Union[dict, str]:
     df = pd.DataFrame([analytics_data_to_dict(item) for item in data])
     team_counts = df['team'].value_counts()
-    
+
     fig = go.Figure(
-        go.Pie(labels=team_counts.index, values=team_counts.values, textinfo='label+percent')
+        go.Pie(labels=team_counts.index,
+               values=team_counts.values, textinfo='label+percent')
     )
 
     fig.update_layout(title=title)
@@ -36,11 +36,14 @@ def create_scatter_plot(data: List[AnalyticsData], title: str) -> Union[dict, st
     fig = go.Figure()
 
     fig.add_trace(
-        go.Scatter(x=df['review_time'], y=df['merge_time'], mode='markers', name='Data Points')
+        go.Scatter(x=df['review_time'], y=df['merge_time'],
+                   mode='markers', name='Data Points')
     )
 
-    fig.update_layout(title=title, xaxis_title='Review Time', yaxis_title='Merge Time')
+    fig.update_layout(title=title, xaxis_title='Review Time',
+                      yaxis_title='Merge Time')
     return json.loads(pio.to_json(fig))
+
 
 def analytics_data_to_dict(data: AnalyticsData) -> dict:
     return {

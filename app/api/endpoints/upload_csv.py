@@ -15,11 +15,14 @@ from datetime import datetime
 from utils.analytics_db import calculate_and_store_summary
 from typing import List, Union
 
+
 class UploadResponse(BaseModel):
     detail: str
     group_id: int
 
+
 router = APIRouter()
+
 
 @router.post("/upload_csv", status_code=201, response_model=UploadResponse)
 async def upload_csv(file: UploadFile = File(..., description="The CSV file to upload (multipart/form-data)"),
@@ -49,11 +52,13 @@ async def upload_csv(file: UploadFile = File(..., description="The CSV file to u
         )
 
     analytics_data_group = AnalyticsDataGroup(created_at=datetime.utcnow())
-    insert_stmt = insert(AnalyticsDataGroup).values(created_at=analytics_data_group.created_at)
+    insert_stmt = insert(AnalyticsDataGroup).values(
+        created_at=analytics_data_group.created_at)
     result = await db.execute(insert_stmt)
     analytics_data_group.id = result
 
-    data: Union[list, JSONResponse] = validate_and_parse_csv(file_content, analytics_data_group.id)
+    data: Union[list, JSONResponse] = validate_and_parse_csv(
+        file_content, analytics_data_group.id)
     if isinstance(data, JSONResponse):
         return data
 
@@ -62,11 +67,13 @@ async def upload_csv(file: UploadFile = File(..., description="The CSV file to u
             data_dicts = [analytics_data_to_dict(datum) for datum in data]
             insert_stmt = insert(AnalyticsData.__table__).values(data_dicts)
             await db.execute(insert_stmt)
-            await calculate_and_store_summary(db, analytics_data_group, data)  # Adicione "await" aqui
+            # Adicione "await" aqui
+            await calculate_and_store_summary(db, analytics_data_group, data)
 
         return UploadResponse(detail=ERROR_MESSAGES["upload_successful"], group_id=analytics_data_group.id)
     except Exception as e:
         return JSONResponse(
             status_code=500,
-            content={"detail": ERROR_MESSAGES["processing_error"].format(error=e)},
+            content={
+                "detail": ERROR_MESSAGES["processing_error"].format(error=e)},
         )

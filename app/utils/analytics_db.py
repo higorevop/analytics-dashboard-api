@@ -1,4 +1,4 @@
-from databases import Database 
+from databases import Database
 from typing import List
 from db.models import AnalyticsData, AnalyticsDataGroup
 import pandas as pd

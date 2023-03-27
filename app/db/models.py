@@ -16,7 +16,8 @@ class AnalyticsDataGroup(Base):
     mean_merge_time: float = Column(Float)
     median_merge_time: float = Column(Float)
     mode_merge_time: float = Column(Float)
-    visualizations = relationship("AnalyticsVisualization", back_populates="group", cascade="all, delete-orphan") # type: ignore
+    visualizations = relationship(
+        "AnalyticsVisualization", back_populates="group", cascade="all, delete-orphan")  # type: ignore
 
     class Config:
         orm_mode = True
@@ -40,7 +41,8 @@ class AnalyticsVisualization(Base):
     __tablename__ = "analytics_visualization"
 
     id: int = Column(Integer, primary_key=True, index=True)
-    group_id: int = Column(Integer, ForeignKey("analytics_data_group.id"), nullable=False)
+    group_id: int = Column(Integer, ForeignKey(
+        "analytics_data_group.id"), nullable=False)
     group = relationship("AnalyticsDataGroup", back_populates="visualizations")
     chart_type: str = Column(String, nullable=False)
     chart_data: dict = Column(JSON, nullable=False)

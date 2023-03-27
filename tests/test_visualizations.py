@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-import httpx
+
 
 def test_creation_and_sharing_line_chart(client):
     csv_data = "review_time,team,date,merge_time\n0,Application,2023-01-14,0\n0,Application,2023-01-15,0\n715,Application,2023-01-16,597"
@@ -40,6 +40,7 @@ def test_creation_and_sharing_bar_chart(client):
     response = client.get(share_path)
     assert response.status_code == 200
 
+
 def test_creation_and_sharing_scatter_plot(client):
     csv_data = "review_time,team,date,merge_time\n0,Application,2023-01-14,0\n0,Application,2023-01-15,0\n715,Application,2023-01-16,597"
     files = {"file": ("sample.csv", csv_data, "text/csv")}
@@ -58,6 +59,7 @@ def test_creation_and_sharing_scatter_plot(client):
     share_path = urlparse(share_url).path
     response = client.get(share_path)
     assert response.status_code == 200
+
 
 def test_creation_and_sharing_pie_chart(client):
     csv_data = "review_time,team,date,merge_time\n0,Application,2023-01-14,0\n0,Application,2023-01-15,0\n715,Application,2023-01-16,597"

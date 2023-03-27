@@ -9,7 +9,6 @@ def test_upload_csv(client, error_messages):
     assert isinstance(response_json["group_id"], int)
 
 
-
 def test_upload_empty_csv(client, error_messages):
     csv_data = ""
     files = {"file": ("empty.csv", csv_data, "text/csv")}
@@ -27,7 +26,8 @@ def test_upload_invalid_csv(client, error_messages):
 
 
 def test_upload_large_csv(client, error_messages):
-    csv_data = "review_time,team,date,merge_time\n" + "0,Application,2023-01-14,0\n" * 1000000 + "0,Application,2023-01-15,0\n715,Application,2023-01-16,597"
+    csv_data = "review_time,team,date,merge_time\n" + "0,Application,2023-01-14,0\n" * \
+        1000000 + "0,Application,2023-01-15,0\n715,Application,2023-01-16,597"
     files = {"file": ("large.csv", csv_data, "text/csv")}
     response = client.post("/upload_csv", files=files)
     assert response.status_code == 400, f"Response: {response.text}"
@@ -75,5 +75,3 @@ def test_upload_csv_with_invalid_date_format(client, error_messages):
     response = client.post("/upload_csv", files=files)
     assert response.status_code == 400, f"Response: {response.text}"
     assert response.json() == {"detail": error_messages["invalid_date_format"]}
-
- 

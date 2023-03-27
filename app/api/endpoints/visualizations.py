@@ -8,6 +8,7 @@ from utils.visualizations_db import get_or_create_visualization
 
 router = APIRouter()
 
+
 @router.get("/{group_id}/visualizations/{chart_type}")
 async def get_visualization(
     group_id: int,
